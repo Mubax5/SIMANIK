@@ -53,8 +53,39 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\FormDashboardAdmin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormDashboardAdmin.Designer.cs">
+      <DependentUpon>FormDashboardAdmin.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FormDashboardDokter.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormDashboardDokter.Designer.cs">
+      <DependentUpon>FormDashboardDokter.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FormDashboardPasien.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormDashboardPasien.Designer.cs">
+      <DependentUpon>FormDashboardPasien.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FormLogin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormLogin.Designer.cs">
+      <DependentUpon>FormLogin.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FormRegisterPasien.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormRegisterPasien.Designer.cs">
+      <DependentUpon>FormRegisterPasien.cs</DependentUpon>
+    </Compile>
     <Compile Include="Helpers\DatabaseHelper.cs" />
     <Compile Include="Helpers\SessionHelper.cs" />
+    <Compile Include="Helpers\UiTheme.cs" />
     <Compile Include="Helpers\ValidationHelper.cs" />
     <Compile Include="Models\Dokter.cs" />
     <Compile Include="Models\Enums.cs" />
@@ -64,6 +95,11 @@
     <Compile Include="Models\User.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\PasienRepository.cs" />
+    <Compile Include="Repositories\UserRepository.cs" />
+    <Compile Include="Services\AuthService.cs" />
+    <Compile Include="Services\PasienService.cs" />
+    <Compile Include="Services\ServiceResult.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
