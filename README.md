@@ -2141,8 +2141,8 @@ Tampilan sistem menggunakan konsep:
 
 | Elemen        | Warna     |
 | ------------- | --------- |
-| Primary       | `#004BCD` |
-| Secondary     | `#79AAFF` |
+| Primary       | `#002657` |
+| Secondary     | `#003EAA` |
 | Accent        | `#D6F1FA` |
 | Background    | `#F4FBFE` |
 | Card / Panel  | `#EAF7FC` |
