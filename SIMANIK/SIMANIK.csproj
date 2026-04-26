@@ -44,6 +44,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -84,10 +85,13 @@
       <DependentUpon>FormRegisterPasien.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\DatabaseHelper.cs" />
+    <Compile Include="Helpers\ConfigHelper.cs" />
+    <Compile Include="Helpers\DashboardUiHelper.cs" />
     <Compile Include="Helpers\SessionHelper.cs" />
     <Compile Include="Helpers\UiTheme.cs" />
     <Compile Include="Helpers\ValidationHelper.cs" />
     <Compile Include="Models\Dokter.cs" />
+    <Compile Include="Models\DashboardModels.cs" />
     <Compile Include="Models\Enums.cs" />
     <Compile Include="Models\Pasien.cs" />
     <Compile Include="Models\Pemeriksaan.cs" />
@@ -96,8 +100,10 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\PasienRepository.cs" />
+    <Compile Include="Repositories\DashboardRepository.cs" />
     <Compile Include="Repositories\UserRepository.cs" />
     <Compile Include="Services\AuthService.cs" />
+    <Compile Include="Services\DashboardService.cs" />
     <Compile Include="Services\PasienService.cs" />
     <Compile Include="Services\ServiceResult.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

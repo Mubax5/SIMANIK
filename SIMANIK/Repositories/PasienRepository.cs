@@ -13,10 +13,10 @@ namespace SIMANIK.Repositories
             {
                 command.Transaction = transaction;
                 command.CommandText = @"
-                    SELECT no_rekam_medis
+                    SELECT PatientNumber
                     FROM patients
-                    WHERE no_rekam_medis LIKE 'RM%'
-                    ORDER BY CAST(SUBSTRING(no_rekam_medis, 3) AS UNSIGNED) DESC
+                    WHERE PatientNumber LIKE 'RM%'
+                    ORDER BY CAST(SUBSTRING(PatientNumber, 3) AS UNSIGNED) DESC
                     LIMIT 1;";
 
                 object result = command.ExecuteScalar();
@@ -46,20 +46,17 @@ namespace SIMANIK.Repositories
                 command.Transaction = transaction;
                 command.CommandText = @"
                     INSERT INTO patients
-                        (user_id, no_rekam_medis, nik, nama_lengkap, jenis_kelamin, tanggal_lahir, no_telepon, email, alamat, created_at)
+                        (UserId, PatientNumber, FullName, BirthDate, Gender, Address, PhoneNumber)
                     VALUES
-                        (@user_id, @no_rekam_medis, @nik, @nama_lengkap, @jenis_kelamin, @tanggal_lahir, @no_telepon, @email, @alamat, @created_at);";
+                        (@user_id, @patient_number, @full_name, @birth_date, @gender, @address, @phone_number);";
 
                 command.Parameters.AddWithValue("@user_id", pasien.UserId);
-                command.Parameters.AddWithValue("@no_rekam_medis", pasien.NoRekamMedis);
-                command.Parameters.AddWithValue("@nik", (object)pasien.Nik ?? DBNull.Value);
-                command.Parameters.AddWithValue("@nama_lengkap", pasien.NamaLengkap);
-                command.Parameters.AddWithValue("@jenis_kelamin", (int)pasien.JenisKelamin);
-                command.Parameters.AddWithValue("@tanggal_lahir", (object)pasien.TanggalLahir ?? DBNull.Value);
-                command.Parameters.AddWithValue("@no_telepon", pasien.NoTelepon);
-                command.Parameters.AddWithValue("@email", (object)pasien.Email ?? DBNull.Value);
-                command.Parameters.AddWithValue("@alamat", (object)pasien.Alamat ?? DBNull.Value);
-                command.Parameters.AddWithValue("@created_at", pasien.CreatedAt);
+                command.Parameters.AddWithValue("@patient_number", pasien.NoRekamMedis);
+                command.Parameters.AddWithValue("@full_name", pasien.NamaLengkap);
+                command.Parameters.AddWithValue("@birth_date", (object)pasien.TanggalLahir ?? DBNull.Value);
+                command.Parameters.AddWithValue("@gender", FormatJenisKelamin(pasien.JenisKelamin));
+                command.Parameters.AddWithValue("@address", (object)pasien.Alamat ?? DBNull.Value);
+                command.Parameters.AddWithValue("@phone_number", (object)pasien.NoTelepon ?? DBNull.Value);
                 command.ExecuteNonQuery();
             }
 
@@ -87,7 +84,11 @@ namespace SIMANIK.Repositories
             HashSet<string> columns = GetTableColumns(tableName, connection, transaction);
             string pasienColumn = null;
 
-            if (columns.Contains("patient_id"))
+            if (columns.Contains("PatientId"))
+            {
+                pasienColumn = "PatientId";
+            }
+            else if (columns.Contains("patient_id"))
             {
                 pasienColumn = "patient_id";
             }
@@ -117,6 +118,7 @@ namespace SIMANIK.Repositories
 
             AddOptionalNowColumn(columns, insertColumns, insertValues, "tanggal_rekam_medis");
             AddOptionalNowColumn(columns, insertColumns, insertValues, "tanggal_pemeriksaan");
+            AddOptionalNowColumn(columns, insertColumns, insertValues, "LastVisitDate");
             AddOptionalNowColumn(columns, insertColumns, insertValues, "record_date");
             AddOptionalNowColumn(columns, insertColumns, insertValues, "created_at");
             AddOptionalNowColumn(columns, insertColumns, insertValues, "updated_at");
@@ -126,6 +128,8 @@ namespace SIMANIK.Repositories
             AddOptionalEmptyTextColumn(columns, insertColumns, insertValues, "tindakan");
             AddOptionalEmptyTextColumn(columns, insertColumns, insertValues, "resep");
             AddOptionalEmptyTextColumn(columns, insertColumns, insertValues, "catatan");
+            AddOptionalEmptyTextColumn(columns, insertColumns, insertValues, "AllergyNotes");
+            AddOptionalEmptyTextColumn(columns, insertColumns, insertValues, "ChronicDiseaseNotes");
 
             if (columns.Contains("status"))
             {
@@ -207,6 +211,21 @@ namespace SIMANIK.Repositories
         {
             insertColumns.Add("`" + columnName.Replace("`", "``") + "`");
             insertValues.Add(valueExpression);
+        }
+
+        private static string FormatJenisKelamin(JenisKelamin jenisKelamin)
+        {
+            if (jenisKelamin == JenisKelamin.LakiLaki)
+            {
+                return "Laki-laki";
+            }
+
+            if (jenisKelamin == JenisKelamin.Perempuan)
+            {
+                return "Perempuan";
+            }
+
+            return string.Empty;
         }
     }
 }

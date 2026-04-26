@@ -13,12 +13,12 @@ namespace SIMANIK.Repositories
             using (MySqlCommand command = connection.CreateCommand())
             {
                 command.CommandText = @"
-                    SELECT id, username, password_hash, nama_lengkap, role, is_active, created_at
+                    SELECT UserId, Username, Password, Role, IsActive, CreatedAt
                     FROM users
-                    WHERE username = @username
+                    WHERE Username = @username
                       AND (
-                            password_hash = @password
-                            OR LOWER(password_hash) = LOWER(SHA2(@password, 256))
+                            Password = @password
+                            OR LOWER(Password) = LOWER(SHA2(@password, 256))
                           )
                     LIMIT 1;";
 
@@ -53,7 +53,7 @@ namespace SIMANIK.Repositories
                 command.CommandText = @"
                     SELECT COUNT(1)
                     FROM users
-                    WHERE username = @username;";
+                    WHERE Username = @username;";
 
                 command.Parameters.AddWithValue("@username", username);
 
@@ -69,14 +69,13 @@ namespace SIMANIK.Repositories
                 command.Transaction = transaction;
                 command.CommandText = @"
                     INSERT INTO users
-                        (username, password_hash, nama_lengkap, role, is_active, created_at)
+                        (Username, Password, Role, IsActive, CreatedAt)
                     VALUES
-                        (@username, @password_hash, @nama_lengkap, @role, @is_active, @created_at);";
+                        (@username, @password, @role, @is_active, @created_at);";
 
                 command.Parameters.AddWithValue("@username", user.Username);
-                command.Parameters.AddWithValue("@password_hash", user.PasswordHash);
-                command.Parameters.AddWithValue("@nama_lengkap", user.NamaLengkap);
-                command.Parameters.AddWithValue("@role", (int)user.Role);
+                command.Parameters.AddWithValue("@password", user.PasswordHash);
+                command.Parameters.AddWithValue("@role", user.Role.ToString());
                 command.Parameters.AddWithValue("@is_active", user.IsActive);
                 command.Parameters.AddWithValue("@created_at", user.CreatedAt);
                 command.ExecuteNonQuery();
@@ -92,15 +91,17 @@ namespace SIMANIK.Repositories
 
         private static User MapUser(MySqlDataReader reader)
         {
+            string username = Convert.ToString(reader["Username"]);
+
             return new User
             {
-                Id = Convert.ToInt32(reader["id"]),
-                Username = Convert.ToString(reader["username"]),
-                PasswordHash = Convert.ToString(reader["password_hash"]),
-                NamaLengkap = Convert.ToString(reader["nama_lengkap"]),
-                Role = ParseRole(reader["role"]),
-                IsActive = ParseBoolean(reader["is_active"]),
-                CreatedAt = reader["created_at"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(reader["created_at"])
+                Id = Convert.ToInt32(reader["UserId"]),
+                Username = username,
+                PasswordHash = Convert.ToString(reader["Password"]),
+                NamaLengkap = username,
+                Role = ParseRole(reader["Role"]),
+                IsActive = ParseBoolean(reader["IsActive"]),
+                CreatedAt = reader["CreatedAt"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(reader["CreatedAt"])
             };
         }
 

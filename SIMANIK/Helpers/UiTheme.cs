@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace SIMANIK.Helpers
 {
@@ -117,6 +118,114 @@ namespace SIMANIK.Helpers
             button.FlatAppearance.BorderColor = Primary;
             button.FlatAppearance.MouseOverBackColor = Secondary;
             button.FlatAppearance.MouseDownBackColor = Secondary;
+        }
+
+        public static void StyleDataGridView(DataGridView grid)
+        {
+            grid.BackgroundColor = Color.White;
+            grid.BorderStyle = BorderStyle.None;
+            grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            grid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+            grid.EnableHeadersVisualStyles = false;
+            grid.GridColor = Border;
+            grid.RowHeadersVisible = false;
+            grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            grid.MultiSelect = false;
+            grid.AllowUserToAddRows = false;
+            grid.AllowUserToDeleteRows = false;
+            grid.ReadOnly = true;
+            grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            grid.ColumnHeadersDefaultCellStyle.BackColor = Primary;
+            grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold);
+            grid.DefaultCellStyle.BackColor = Color.White;
+            grid.DefaultCellStyle.ForeColor = TextPrimary;
+            grid.DefaultCellStyle.SelectionBackColor = Accent;
+            grid.DefaultCellStyle.SelectionForeColor = TextPrimary;
+            grid.AlternatingRowsDefaultCellStyle.BackColor = Background;
+        }
+
+        public static void StyleChart(Chart chart)
+        {
+            chart.BackColor = Color.White;
+            chart.BorderlineColor = Border;
+            chart.BorderlineDashStyle = ChartDashStyle.Solid;
+            chart.Palette = ChartColorPalette.BrightPastel;
+
+            foreach (ChartArea area in chart.ChartAreas)
+            {
+                area.BackColor = Color.White;
+                area.AxisX.LabelStyle.ForeColor = TextSecondary;
+                area.AxisY.LabelStyle.ForeColor = TextSecondary;
+                area.AxisX.LineColor = Border;
+                area.AxisY.LineColor = Border;
+                area.AxisX.MajorGrid.LineColor = Border;
+                area.AxisY.MajorGrid.LineColor = Border;
+            }
+
+            foreach (Title title in chart.Titles)
+            {
+                title.ForeColor = Primary;
+                title.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
+            }
+        }
+
+        public static Label CreateSectionTitle(string text)
+        {
+            return new Label
+            {
+                Text = text,
+                AutoSize = false,
+                Dock = DockStyle.Top,
+                Height = 30,
+                ForeColor = Primary,
+                Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold),
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+        }
+
+        public static Panel CreateSummaryCard(string title, string value, string subtitle)
+        {
+            Panel card = new Panel
+            {
+                BackColor = Color.White,
+                Width = 190,
+                Height = 94,
+                Margin = new Padding(0, 0, 12, 12),
+                Padding = new Padding(12)
+            };
+
+            Label lblTitle = new Label
+            {
+                Text = title,
+                Dock = DockStyle.Top,
+                Height = 22,
+                ForeColor = TextSecondary,
+                Font = new Font("Segoe UI Semibold", 8.8F, FontStyle.Bold)
+            };
+
+            Label lblValue = new Label
+            {
+                Text = value,
+                Dock = DockStyle.Top,
+                Height = 34,
+                ForeColor = Primary,
+                Font = new Font("Segoe UI Semibold", 18F, FontStyle.Bold)
+            };
+
+            Label lblSubtitle = new Label
+            {
+                Text = subtitle,
+                Dock = DockStyle.Fill,
+                ForeColor = TextSecondary,
+                Font = new Font("Segoe UI", 8.5F, FontStyle.Regular)
+            };
+
+            card.Controls.Add(lblSubtitle);
+            card.Controls.Add(lblValue);
+            card.Controls.Add(lblTitle);
+
+            return card;
         }
 
         private static void StyleButtonBase(Button button)
