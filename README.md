@@ -1,6 +1,4 @@
-# PRD — SIMANIK
-
-## Sistem Informasi dan Manajemen Klinik + Reservasi Digital
+# PRD — Sistem Informasi dan Manajemen Klinik (SIMANIK)
 
 **Platform:** Desktop App C# menggunakan Visual Studio + Windows Forms
 **Database:** SQL Server LocalDB atau MySQL
