@@ -191,7 +191,7 @@ namespace SIMANIK.Forms
         private void AddGridSection(string title, DataGridView grid)
         {
             Panel body;
-            Panel section = DashboardUiHelper.CreateSection(title, 470, DashboardUiHelper.SectionWidthMode.Third, false, out body);
+            Panel section = DashboardUiHelper.CreateSection(title, 430, DashboardUiHelper.SectionWidthMode.Full, false, out body);
             body.Controls.Add(grid);
             tableContent.Controls.Add(section);
         }

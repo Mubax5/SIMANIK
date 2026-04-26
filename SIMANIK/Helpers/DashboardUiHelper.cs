@@ -106,6 +106,7 @@ namespace SIMANIK.Helpers
 
         private static FlowLayoutPanel CreateTabPage(TabControl tabs, string title, bool scrollable)
         {
+            bool isTableTab = title == "Tabel";
             TabPage page = new TabPage
             {
                 Text = title,
@@ -116,7 +117,8 @@ namespace SIMANIK.Helpers
             {
                 Dock = DockStyle.Fill,
                 AutoScroll = scrollable,
-                WrapContents = true,
+                WrapContents = !isTableTab,
+                FlowDirection = isTableTab ? FlowDirection.TopDown : FlowDirection.LeftToRight,
                 Padding = new Padding(8),
                 BackColor = UiTheme.Background
             };
@@ -272,22 +274,49 @@ namespace SIMANIK.Helpers
             };
 
             ChartArea area = new ChartArea("Default");
+            area.AxisX.Title = "Kategori";
+            area.AxisY.Title = "Jumlah";
             chart.ChartAreas.Add(area);
-            chart.Titles.Add(title);
+            chart.Titles.Add(string.IsNullOrWhiteSpace(title) ? "Grafik Dashboard" : title);
 
-            Series series = new Series("Data")
+            Legend legend = new Legend("Legend")
+            {
+                Docking = chartType == SeriesChartType.Pie ? Docking.Right : Docking.Bottom,
+                Alignment = StringAlignment.Center,
+                Title = chartType == SeriesChartType.Pie ? "Kategori" : "Keterangan"
+            };
+            chart.Legends.Add(legend);
+
+            Series series = new Series("Jumlah")
             {
                 ChartArea = "Default",
                 ChartType = chartType,
                 IsValueShownAsLabel = true,
-                Color = UiTheme.Secondary
+                Color = UiTheme.Secondary,
+                Legend = "Legend",
+                IsVisibleInLegend = true
             };
 
-            if (points == null || points.Count == 0)
+            bool hasData = false;
+
+            if (points != null)
+            {
+                for (int i = 0; i < points.Count; i++)
+                {
+                    if (points[i].Value > 0)
+                    {
+                        hasData = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!hasData)
             {
                 DataPoint point = new DataPoint();
                 point.SetValueXY("Belum ada data", chartType == SeriesChartType.Pie ? 1 : 0);
                 point.Label = "Belum ada data";
+                point.LegendText = "Belum ada data";
                 series.Points.Add(point);
             }
             else
@@ -303,6 +332,8 @@ namespace SIMANIK.Helpers
 
                     DataPoint point = new DataPoint();
                     point.SetValueXY(points[i].Label, value);
+                    point.Label = chartType == SeriesChartType.Pie ? "#PERCENT{P0}" : "#VAL";
+                    point.LegendText = points[i].Label + " (#VAL)";
 
                     if (points[i].Value <= 0 && points.Count == 1)
                     {
@@ -315,6 +346,12 @@ namespace SIMANIK.Helpers
 
             chart.Series.Add(series);
             UiTheme.StyleChart(chart);
+
+            if (chartType == SeriesChartType.Pie)
+            {
+                area.AxisX.Enabled = AxisEnabled.False;
+                area.AxisY.Enabled = AxisEnabled.False;
+            }
 
             return chart;
         }
