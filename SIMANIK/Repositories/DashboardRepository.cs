@@ -49,12 +49,15 @@ namespace SIMANIK.Repositories
         public List<ChartDataPoint> GetReservationsLast7Days()
         {
             return QueryChart(@"
-                SELECT DATE_FORMAT(s.ScheduleDate, '%d/%m') AS Label, COUNT(1) AS Value
-                FROM reservations r
-                INNER JOIN doctor_schedules s ON s.ScheduleId = r.ScheduleId
-                WHERE s.ScheduleDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY) AND CURDATE()
-                GROUP BY s.ScheduleDate
-                ORDER BY s.ScheduleDate;", null);
+                SELECT DATE_FORMAT(daily.ReservationDate, '%d/%m') AS Label, daily.Value
+                FROM (
+                    SELECT DATE(s.ScheduleDate) AS ReservationDate, COUNT(1) AS Value
+                    FROM reservations r
+                    INNER JOIN doctor_schedules s ON s.ScheduleId = r.ScheduleId
+                    WHERE DATE(s.ScheduleDate) BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY) AND CURDATE()
+                    GROUP BY DATE(s.ScheduleDate)
+                ) daily
+                ORDER BY daily.ReservationDate;", null);
         }
 
         public List<ChartDataPoint> GetReservationStatusDistribution()
@@ -278,12 +281,15 @@ namespace SIMANIK.Repositories
             }
 
             return QueryChart(@"
-                SELECT DATE_FORMAT(ExaminationDate, '%d/%m') AS Label, COUNT(1) AS Value
-                FROM examinations
-                WHERE DoctorId = @doctorId
-                  AND DATE(ExaminationDate) BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY) AND CURDATE()
-                GROUP BY DATE(ExaminationDate)
-                ORDER BY DATE(ExaminationDate);", delegate(MySqlParameterCollection p)
+                SELECT DATE_FORMAT(daily.ExaminationDay, '%d/%m') AS Label, daily.Value
+                FROM (
+                    SELECT DATE(ExaminationDate) AS ExaminationDay, COUNT(1) AS Value
+                    FROM examinations
+                    WHERE DoctorId = @doctorId
+                      AND DATE(ExaminationDate) BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY) AND CURDATE()
+                    GROUP BY DATE(ExaminationDate)
+                ) daily
+                ORDER BY daily.ExaminationDay;", delegate(MySqlParameterCollection p)
                 {
                     p.AddWithValue("@doctorId", doctorId);
                 });
@@ -466,12 +472,17 @@ namespace SIMANIK.Repositories
             }
 
             return QueryChart(@"
-                SELECT DATE_FORMAT(v.CheckInTime, '%Y-%m') AS Label, COUNT(1) AS Value
-                FROM visits v
-                INNER JOIN reservations r ON r.ReservationId = v.ReservationId
-                WHERE r.PatientId = @patientId
-                GROUP BY DATE_FORMAT(v.CheckInTime, '%Y-%m')
-                ORDER BY Label
+                SELECT monthly.MonthLabel AS Label, monthly.Value
+                FROM (
+                    SELECT DATE_FORMAT(v.CheckInTime, '%Y-%m') AS MonthLabel,
+                           MIN(DATE(v.CheckInTime)) AS SortDate,
+                           COUNT(1) AS Value
+                    FROM visits v
+                    INNER JOIN reservations r ON r.ReservationId = v.ReservationId
+                    WHERE r.PatientId = @patientId
+                    GROUP BY DATE_FORMAT(v.CheckInTime, '%Y-%m')
+                ) monthly
+                ORDER BY monthly.SortDate
                 LIMIT 12;", delegate(MySqlParameterCollection p)
                 {
                     p.AddWithValue("@patientId", patientId);

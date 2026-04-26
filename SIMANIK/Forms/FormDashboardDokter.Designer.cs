@@ -109,7 +109,7 @@ namespace SIMANIK.Forms
             // 
             // menuPanel
             // 
-            this.menuPanel.AutoScroll = true;
+            this.menuPanel.AutoScroll = false;
             this.menuPanel.Controls.Add(this.btnAntrian);
             this.menuPanel.Controls.Add(this.btnPemeriksaan);
             this.menuPanel.Controls.Add(this.btnRiwayat);

@@ -109,7 +109,7 @@ namespace SIMANIK.Forms
             // 
             // menuPanel
             // 
-            this.menuPanel.AutoScroll = true;
+            this.menuPanel.AutoScroll = false;
             this.menuPanel.Controls.Add(this.btnProfil);
             this.menuPanel.Controls.Add(this.btnReservasi);
             this.menuPanel.Controls.Add(this.btnRiwayat);

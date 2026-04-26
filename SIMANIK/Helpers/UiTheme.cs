@@ -130,6 +130,7 @@ namespace SIMANIK.Helpers
             grid.GridColor = Border;
             grid.RowHeadersVisible = false;
             grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            grid.ScrollBars = ScrollBars.Both;
             grid.MultiSelect = false;
             grid.AllowUserToAddRows = false;
             grid.AllowUserToDeleteRows = false;
@@ -189,7 +190,7 @@ namespace SIMANIK.Helpers
             Panel card = new Panel
             {
                 BackColor = Color.White,
-                Width = 190,
+                Width = 180,
                 Height = 94,
                 Margin = new Padding(0, 0, 12, 12),
                 Padding = new Padding(12)

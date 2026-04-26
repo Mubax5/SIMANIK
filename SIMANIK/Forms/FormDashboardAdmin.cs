@@ -13,7 +13,10 @@ namespace SIMANIK.Forms
     {
         private readonly AuthService _authService;
         private readonly DashboardService _dashboardService;
-        private FlowLayoutPanel dashboardContent;
+        private FlowLayoutPanel summaryContent;
+        private FlowLayoutPanel chartContent;
+        private FlowLayoutPanel tableContent;
+        private FlowLayoutPanel searchContent;
         private TextBox txtSearchAdmin;
         private ComboBox cmbSearchAdminType;
         private ComboBox cmbSearchAdminStatus;
@@ -66,17 +69,31 @@ namespace SIMANIK.Forms
 
         private void InitializeDashboard()
         {
-            dashboardContent = DashboardUiHelper.PrepareDashboardContent(this, rootLayout, menuPanel);
+            menuPanel.Controls.Clear();
             Button refreshButton = new Button
             {
                 Text = "Refresh Dashboard",
-                Width = 150,
-                Height = 44,
-                Margin = new Padding(0, 0, 12, 12)
+                Width = 145,
+                Height = 40,
+                Margin = new Padding(8, 0, 0, 0)
             };
             UiTheme.StylePrimaryButton(refreshButton);
             refreshButton.Click += delegate { RefreshDashboard(); };
+            btnAkun.Width = 92;
+            btnAkun.Height = 40;
+            btnAkun.Margin = new Padding(8, 0, 0, 0);
+            btnLogout.Width = 92;
+            btnLogout.Height = 40;
+            btnLogout.Margin = new Padding(8, 0, 0, 0);
+            menuPanel.Controls.Add(btnLogout);
+            menuPanel.Controls.Add(btnAkun);
             menuPanel.Controls.Add(refreshButton);
+
+            DashboardUiHelper.DashboardLayout layout = DashboardUiHelper.PrepareDashboardContent(this, rootLayout, menuPanel, lblTitle);
+            summaryContent = layout.SummaryContent;
+            chartContent = layout.ChartContent;
+            tableContent = layout.TableContent;
+            searchContent = layout.SearchContent;
         }
 
         private void RefreshDashboard()
@@ -84,13 +101,20 @@ namespace SIMANIK.Forms
             try
             {
                 Cursor = Cursors.WaitCursor;
-                dashboardContent.Controls.Clear();
+                summaryContent.Controls.Clear();
+                chartContent.Controls.Clear();
+                tableContent.Controls.Clear();
+                searchContent.Controls.Clear();
 
                 BuildSummarySection();
                 BuildChartSections();
                 BuildTableSections();
                 BuildSearchSection();
                 RunAdminSearch(false);
+                DashboardUiHelper.AdjustResponsiveSections(summaryContent);
+                DashboardUiHelper.AdjustResponsiveSections(chartContent);
+                DashboardUiHelper.AdjustResponsiveSections(tableContent);
+                DashboardUiHelper.AdjustResponsiveSections(searchContent);
             }
             catch (Exception ex)
             {
@@ -106,7 +130,7 @@ namespace SIMANIK.Forms
         {
             AdminDashboardSummary summary = _dashboardService.GetAdminSummary();
             Panel body;
-            Panel section = DashboardUiHelper.CreateSection("Ringkasan Operasional", 1050, 245, out body);
+            Panel section = DashboardUiHelper.CreateSection("Ringkasan Operasional", 285, DashboardUiHelper.SectionWidthMode.Full, false, out body);
             FlowLayoutPanel cards = DashboardUiHelper.CreateCardFlow();
 
             cards.Controls.Add(UiTheme.CreateSummaryCard("Total pasien", summary.TotalPatients.ToString(), "Data pasien terdaftar"));
@@ -119,7 +143,45 @@ namespace SIMANIK.Forms
             cards.Controls.Add(UiTheme.CreateSummaryCard("Penyakit terbanyak", summary.TopDiseaseThisMonth, "Bulan ini"));
 
             body.Controls.Add(cards);
-            dashboardContent.Controls.Add(section);
+            summaryContent.Controls.Add(section);
+
+            BuildQuickMenuSection();
+        }
+
+        private void BuildQuickMenuSection()
+        {
+            Panel body;
+            Panel section = DashboardUiHelper.CreateSection("Menu Operasional", 180, DashboardUiHelper.SectionWidthMode.Full, false, out body);
+            FlowLayoutPanel quickMenu = DashboardUiHelper.CreateCardFlow();
+
+            ConfigureQuickMenuButton(btnDokter);
+            ConfigureQuickMenuButton(btnJadwal);
+            ConfigureQuickMenuButton(btnPenyakit);
+            ConfigureQuickMenuButton(btnObat);
+            ConfigureQuickMenuButton(btnReservasi);
+            ConfigureQuickMenuButton(btnCheckIn);
+            ConfigureQuickMenuButton(btnAntrian);
+            ConfigureQuickMenuButton(btnLaporan);
+
+            quickMenu.Controls.Add(btnDokter);
+            quickMenu.Controls.Add(btnJadwal);
+            quickMenu.Controls.Add(btnPenyakit);
+            quickMenu.Controls.Add(btnObat);
+            quickMenu.Controls.Add(btnReservasi);
+            quickMenu.Controls.Add(btnCheckIn);
+            quickMenu.Controls.Add(btnAntrian);
+            quickMenu.Controls.Add(btnLaporan);
+
+            body.Controls.Add(quickMenu);
+            summaryContent.Controls.Add(section);
+        }
+
+        private void ConfigureQuickMenuButton(Button button)
+        {
+            button.Width = 132;
+            button.Height = 44;
+            button.Margin = new Padding(0, 0, 12, 10);
+            UiTheme.StyleMenuButton(button);
         }
 
         private void BuildChartSections()
@@ -133,9 +195,9 @@ namespace SIMANIK.Forms
         private void AddChartSection(string title, List<ChartDataPoint> points, SeriesChartType chartType)
         {
             Panel body;
-            Panel section = DashboardUiHelper.CreateSection(title, 515, 300, out body);
+            Panel section = DashboardUiHelper.CreateSection(title, 300, DashboardUiHelper.SectionWidthMode.Half, false, out body);
             body.Controls.Add(DashboardUiHelper.CreateChart(title, points, chartType));
-            dashboardContent.Controls.Add(section);
+            chartContent.Controls.Add(section);
         }
 
         private void BuildTableSections()
@@ -148,15 +210,15 @@ namespace SIMANIK.Forms
         private void AddGridSection(string title, DataGridView grid)
         {
             Panel body;
-            Panel section = DashboardUiHelper.CreateSection(title, 515, 285, out body);
+            Panel section = DashboardUiHelper.CreateSection(title, 470, DashboardUiHelper.SectionWidthMode.Third, false, out body);
             body.Controls.Add(grid);
-            dashboardContent.Controls.Add(section);
+            tableContent.Controls.Add(section);
         }
 
         private void BuildSearchSection()
         {
             Panel body;
-            Panel section = DashboardUiHelper.CreateSection("Pencarian Cepat", 1050, 430, out body);
+            Panel section = DashboardUiHelper.CreateSection("Pencarian Cepat", 500, DashboardUiHelper.SectionWidthMode.Full, false, out body);
             TableLayoutPanel layout = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -171,7 +233,7 @@ namespace SIMANIK.Forms
             {
                 Dock = DockStyle.Fill,
                 AutoScroll = true,
-                WrapContents = false
+                WrapContents = true
             };
 
             txtSearchAdmin = CreateSearchTextBox();
@@ -198,7 +260,7 @@ namespace SIMANIK.Forms
             layout.Controls.Add(filters, 0, 0);
             layout.Controls.Add(dgvAdminSearchResults, 0, 1);
             body.Controls.Add(layout);
-            dashboardContent.Controls.Add(section);
+            searchContent.Controls.Add(section);
         }
 
         private TextBox CreateSearchTextBox()
@@ -245,8 +307,8 @@ namespace SIMANIK.Forms
             Button button = new Button
             {
                 Text = text,
-                Width = 86,
-                Height = 48,
+                Width = 70,
+                Height = 33,
                 Margin = new Padding(8, 18, 0, 0)
             };
 
@@ -346,5 +408,6 @@ namespace SIMANIK.Forms
             _authService.Logout();
             Close();
         }
+
     }
 }
