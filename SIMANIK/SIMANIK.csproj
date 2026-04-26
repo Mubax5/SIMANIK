@@ -34,6 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -52,6 +53,15 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\DatabaseHelper.cs" />
+    <Compile Include="Helpers\SessionHelper.cs" />
+    <Compile Include="Helpers\ValidationHelper.cs" />
+    <Compile Include="Models\Dokter.cs" />
+    <Compile Include="Models\Enums.cs" />
+    <Compile Include="Models\Pasien.cs" />
+    <Compile Include="Models\Pemeriksaan.cs" />
+    <Compile Include="Models\Reservasi.cs" />
+    <Compile Include="Models\User.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -75,6 +85,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MySql.Data">
+      <Version>8.0.33</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Forms\" />
+    <Folder Include="Repositories\" />
+    <Folder Include="Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
