@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MySql.Data.MySqlClient;
 using SIMANIK.Helpers;
 using SIMANIK.Models;
 using SIMANIK.Repositories;
@@ -24,6 +25,11 @@ namespace SIMANIK.Services
         public List<LookupItem> GetDoctorUserOptions(int selectedUserId)
         {
             return _userRepository.GetDoctorUserOptions(selectedUserId);
+        }
+
+        public List<LookupItem> GetAvailableDoctorUsers()
+        {
+            return _userRepository.GetAvailableDoctorUsers();
         }
 
         public List<LookupItem> GetActiveDoctorOptions()
@@ -91,6 +97,31 @@ namespace SIMANIK.Services
 
             _doctorRepository.SetActive(doctorId, isActive);
             return ServiceResult.Ok(isActive ? "Dokter berhasil diaktifkan." : "Dokter berhasil dinonaktifkan.");
+        }
+
+        public ServiceResult DeleteDoctor(int doctorId)
+        {
+            if (doctorId <= 0)
+            {
+                return ServiceResult.Fail("Pilih dokter yang ingin dihapus.");
+            }
+
+            if (_doctorRepository.HasRelations(doctorId))
+            {
+                _doctorRepository.Deactivate(doctorId);
+                return ServiceResult.Ok("Data tidak bisa dihapus karena sudah dipakai. Data akan dinonaktifkan.");
+            }
+
+            try
+            {
+                _doctorRepository.Delete(doctorId);
+                return ServiceResult.Ok("Dokter berhasil dihapus.");
+            }
+            catch (MySqlException)
+            {
+                _doctorRepository.Deactivate(doctorId);
+                return ServiceResult.Ok("Data tidak bisa dihapus karena sudah dipakai. Data akan dinonaktifkan.");
+            }
         }
     }
 }

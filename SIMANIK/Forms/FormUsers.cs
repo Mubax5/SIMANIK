@@ -8,7 +8,8 @@ namespace SIMANIK.Forms
     public class FormUsers : MasterDataFormBase
     {
         private readonly UserService _service = new UserService();
-        private int _selectedUserId;
+        private int? selectedId = null;
+        private bool isEditMode = false;
         private TextBox txtSearch;
         private ComboBox cmbRoleFilter;
         private ComboBox cmbStatusFilter;
@@ -16,11 +17,14 @@ namespace SIMANIK.Forms
         private TextBox txtPassword;
         private ComboBox cmbRole;
         private CheckBox chkActive;
+        private Button btnAdd;
+        private Button btnUpdate;
+        private Button btnDelete;
 
         public FormUsers() : base("Master User")
         {
             BuildUi();
-            Load += delegate { if (EnsureAdmin()) LoadData(); };
+            Load += delegate { if (EnsureAdmin()) { LoadData(); ClearForm(); } };
         }
 
         private void BuildUi()
@@ -35,8 +39,8 @@ namespace SIMANIK.Forms
 
             Button btnSearch = CreateButton("Cari", true);
             Button btnReset = CreateButton("Reset", false);
-            btnSearch.Click += delegate { LoadData(); };
-            btnReset.Click += delegate { txtSearch.Clear(); cmbRoleFilter.SelectedIndex = 0; cmbStatusFilter.SelectedIndex = 0; LoadData(); };
+            btnSearch.Click += delegate { LoadData(); ClearForm(); };
+            btnReset.Click += delegate { txtSearch.Clear(); cmbRoleFilter.SelectedIndex = 0; cmbStatusFilter.SelectedIndex = 0; LoadData(); ClearForm(); };
 
             FilterPanel.Controls.Add(CreateField("Keyword", txtSearch, 230));
             FilterPanel.Controls.Add(CreateField("Role", cmbRoleFilter, 150));
@@ -57,26 +61,79 @@ namespace SIMANIK.Forms
             EditorPanel.Controls.Add(CreateField("Role", cmbRole, 160));
             EditorPanel.Controls.Add(CreateField("Status", chkActive, 150));
 
-            Button btnAdd = CreateButton("Tambah", true);
-            Button btnUpdate = CreateButton("Ubah", true);
-            Button btnDeactivate = CreateButton("Nonaktifkan", false);
+            Button btnNew = CreateButton("Baru/Reset", false);
+            btnAdd = CreateButton("Tambah", true);
+            btnUpdate = CreateButton("Ubah", true);
+            btnDelete = CreateButton("Hapus", false);
             Button btnRefresh = CreateButton("Refresh", false);
-            btnAdd.Click += delegate { Save(0); };
-            btnUpdate.Click += delegate { Save(_selectedUserId); };
-            btnDeactivate.Click += delegate { SetActive(false); };
-            btnRefresh.Click += delegate { ClearEditor(); LoadData(); };
+            btnNew.Click += delegate { ClearForm(); };
+            btnAdd.Click += delegate { AddData(); };
+            btnUpdate.Click += delegate { UpdateData(); };
+            btnDelete.Click += delegate { DeleteData(); };
+            btnRefresh.Click += delegate { LoadData(); ClearForm(); };
 
             ButtonPanel.Controls.Add(btnRefresh);
-            ButtonPanel.Controls.Add(btnDeactivate);
+            ButtonPanel.Controls.Add(btnDelete);
             ButtonPanel.Controls.Add(btnUpdate);
             ButtonPanel.Controls.Add(btnAdd);
+            ButtonPanel.Controls.Add(btnNew);
 
             Grid.SelectionChanged += Grid_SelectionChanged;
+            UpdateActionButtons();
         }
 
         private void LoadData()
         {
+            Grid.SelectionChanged -= Grid_SelectionChanged;
             Grid.DataSource = _service.Search(txtSearch.Text, Convert.ToString(cmbRoleFilter.SelectedItem), Convert.ToString(cmbStatusFilter.SelectedItem));
+            ClearGridSelection();
+            Grid.SelectionChanged += Grid_SelectionChanged;
+        }
+
+        private void AddData()
+        {
+            if (selectedId.HasValue || isEditMode)
+            {
+                MessageBox.Show(this, "Anda sedang memilih data dari tabel. Klik Baru/Reset terlebih dahulu untuk menambah data baru.", "Mode tambah", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            Save(0);
+        }
+
+        private void UpdateData()
+        {
+            if (!selectedId.HasValue)
+            {
+                MessageBox.Show(this, "Pilih data yang ingin diubah.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            Save(selectedId.Value);
+        }
+
+        private void DeleteData()
+        {
+            if (!selectedId.HasValue)
+            {
+                MessageBox.Show(this, "Pilih data yang ingin dihapus.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            DialogResult confirm = MessageBox.Show(this, "Yakin ingin menghapus data ini?", "Konfirmasi", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (confirm != DialogResult.Yes)
+            {
+                return;
+            }
+
+            ServiceResult result = _service.DeleteUser(selectedId.Value);
+            ShowResult(result);
+
+            if (result.Success)
+            {
+                LoadData();
+                ClearForm();
+            }
         }
 
         private void Save(int userId)
@@ -86,19 +143,8 @@ namespace SIMANIK.Forms
 
             if (result.Success)
             {
-                ClearEditor();
                 LoadData();
-            }
-        }
-
-        private void SetActive(bool isActive)
-        {
-            ServiceResult result = _service.SetActive(_selectedUserId, isActive);
-            ShowResult(result);
-
-            if (result.Success)
-            {
-                LoadData();
+                ClearForm();
             }
         }
 
@@ -110,20 +156,35 @@ namespace SIMANIK.Forms
                 return;
             }
 
-            _selectedUserId = item.UserId;
+            selectedId = item.UserId;
+            isEditMode = true;
             txtUsername.Text = item.Username;
             txtPassword.Clear();
             cmbRole.SelectedItem = item.Role;
             chkActive.Checked = item.Status == "Aktif";
+            UpdateActionButtons();
         }
 
-        private void ClearEditor()
+        private void ClearForm()
         {
-            _selectedUserId = 0;
+            Grid.SelectionChanged -= Grid_SelectionChanged;
+            ClearGridSelection();
+            Grid.SelectionChanged += Grid_SelectionChanged;
+            selectedId = null;
+            isEditMode = false;
             txtUsername.Clear();
             txtPassword.Clear();
             cmbRole.SelectedIndex = 1;
             chkActive.Checked = true;
+            UpdateActionButtons();
+            txtUsername.Focus();
+        }
+
+        private void UpdateActionButtons()
+        {
+            btnAdd.Enabled = !isEditMode && !selectedId.HasValue;
+            btnUpdate.Enabled = selectedId.HasValue;
+            btnDelete.Enabled = selectedId.HasValue;
         }
     }
 }

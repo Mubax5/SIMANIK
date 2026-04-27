@@ -52,7 +52,12 @@ namespace SIMANIK.Forms
 
             Grid = new DataGridView
             {
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false,
+                MultiSelect = false,
+                ReadOnly = true,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect
             };
             UiTheme.StyleDataGridView(Grid);
 
@@ -192,6 +197,15 @@ namespace SIMANIK.Forms
                 result.Success ? "Berhasil" : "Validasi",
                 MessageBoxButtons.OK,
                 result.Success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+        }
+
+        protected void ClearGridSelection()
+        {
+            Grid.ClearSelection();
+            if (Grid.CurrentCell != null)
+            {
+                Grid.CurrentCell = null;
+            }
         }
 
         private static FlowLayoutPanel CreateFlowPanel()

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MySql.Data.MySqlClient;
 using SIMANIK.Models;
 using SIMANIK.Repositories;
 
@@ -62,6 +63,31 @@ namespace SIMANIK.Services
 
             _repository.SetActive(scheduleId, isActive);
             return ServiceResult.Ok(isActive ? "Jadwal berhasil diaktifkan." : "Jadwal berhasil dinonaktifkan.");
+        }
+
+        public ServiceResult DeleteSchedule(int scheduleId)
+        {
+            if (scheduleId <= 0)
+            {
+                return ServiceResult.Fail("Pilih jadwal yang ingin dihapus.");
+            }
+
+            if (_repository.HasRelations(scheduleId))
+            {
+                _repository.Deactivate(scheduleId);
+                return ServiceResult.Ok("Data tidak bisa dihapus karena sudah dipakai. Data akan dinonaktifkan.");
+            }
+
+            try
+            {
+                _repository.Delete(scheduleId);
+                return ServiceResult.Ok("Jadwal berhasil dihapus.");
+            }
+            catch (MySqlException)
+            {
+                _repository.Deactivate(scheduleId);
+                return ServiceResult.Ok("Data tidak bisa dihapus karena sudah dipakai. Data akan dinonaktifkan.");
+            }
         }
     }
 }

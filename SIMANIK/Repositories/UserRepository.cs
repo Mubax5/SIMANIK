@@ -202,6 +202,42 @@ namespace SIMANIK.Repositories
             }
         }
 
+        public void Delete(int userId)
+        {
+            using (MySqlConnection connection = DatabaseHelper.OpenConnection())
+            using (MySqlCommand command = connection.CreateCommand())
+            {
+                command.CommandText = "DELETE FROM users WHERE UserId = @userId;";
+                command.Parameters.AddWithValue("@userId", userId);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void Deactivate(int userId)
+        {
+            SetActive(userId, false);
+        }
+
+        public bool HasRelations(int userId)
+        {
+            using (MySqlConnection connection = DatabaseHelper.OpenConnection())
+            using (MySqlCommand command = connection.CreateCommand())
+            {
+                command.CommandText = @"
+                    SELECT
+                        (SELECT COUNT(1) FROM doctors WHERE UserId = @userId) +
+                        (SELECT COUNT(1) FROM patients WHERE UserId = @userId);";
+
+                command.Parameters.AddWithValue("@userId", userId);
+                return Convert.ToInt32(command.ExecuteScalar()) > 0;
+            }
+        }
+
+        public List<LookupItem> GetAvailableDoctorUsers()
+        {
+            return GetDoctorUserOptions(0);
+        }
+
         public List<LookupItem> GetDoctorUserOptions(int selectedUserId)
         {
             List<LookupItem> items = new List<LookupItem>();
@@ -212,10 +248,16 @@ namespace SIMANIK.Repositories
                 command.CommandText = @"
                     SELECT u.UserId, u.Username
                     FROM users u
-                    LEFT JOIN doctors d ON d.UserId = u.UserId
                     WHERE u.Role = 'Dokter'
                       AND u.IsActive = 1
-                      AND (d.DoctorId IS NULL OR u.UserId = @selectedUserId)
+                      AND (
+                            u.UserId = @selectedUserId
+                            OR NOT EXISTS (
+                                SELECT 1
+                                FROM doctors d
+                                WHERE d.UserId = u.UserId
+                            )
+                          )
                     ORDER BY u.Username;";
 
                 command.Parameters.AddWithValue("@selectedUserId", selectedUserId);

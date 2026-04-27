@@ -99,6 +99,33 @@ namespace SIMANIK.Repositories
             }
         }
 
+        public void Delete(int scheduleId)
+        {
+            using (MySqlConnection connection = DatabaseHelper.OpenConnection())
+            using (MySqlCommand command = connection.CreateCommand())
+            {
+                command.CommandText = "DELETE FROM doctor_schedules WHERE ScheduleId = @scheduleId;";
+                command.Parameters.AddWithValue("@scheduleId", scheduleId);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void Deactivate(int scheduleId)
+        {
+            SetActive(scheduleId, false);
+        }
+
+        public bool HasRelations(int scheduleId)
+        {
+            using (MySqlConnection connection = DatabaseHelper.OpenConnection())
+            using (MySqlCommand command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT COUNT(1) FROM reservations WHERE ScheduleId = @scheduleId;";
+                command.Parameters.AddWithValue("@scheduleId", scheduleId);
+                return Convert.ToInt32(command.ExecuteScalar()) > 0;
+            }
+        }
+
         private static void AddParameters(MySqlCommand command, DoctorScheduleItem schedule)
         {
             command.Parameters.AddWithValue("@doctorId", schedule.DoctorId);

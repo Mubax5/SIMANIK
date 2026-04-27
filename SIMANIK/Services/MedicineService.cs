@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MySql.Data.MySqlClient;
 using SIMANIK.Helpers;
 using SIMANIK.Models;
 using SIMANIK.Repositories;
@@ -60,6 +61,31 @@ namespace SIMANIK.Services
 
             _repository.SetActive(medicineId, isActive);
             return ServiceResult.Ok(isActive ? "Obat berhasil diaktifkan." : "Obat berhasil dinonaktifkan.");
+        }
+
+        public ServiceResult DeleteMedicine(int medicineId)
+        {
+            if (medicineId <= 0)
+            {
+                return ServiceResult.Fail("Pilih obat yang ingin dihapus.");
+            }
+
+            if (_repository.HasRelations(medicineId))
+            {
+                _repository.Deactivate(medicineId);
+                return ServiceResult.Ok("Data tidak bisa dihapus karena sudah dipakai. Data akan dinonaktifkan.");
+            }
+
+            try
+            {
+                _repository.Delete(medicineId);
+                return ServiceResult.Ok("Obat berhasil dihapus.");
+            }
+            catch (MySqlException)
+            {
+                _repository.Deactivate(medicineId);
+                return ServiceResult.Ok("Data tidak bisa dihapus karena sudah dipakai. Data akan dinonaktifkan.");
+            }
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
+using MySql.Data.MySqlClient;
 using SIMANIK.Helpers;
 using SIMANIK.Models;
 using SIMANIK.Repositories;
@@ -79,6 +80,31 @@ namespace SIMANIK.Services
 
             _repository.SetActive(userId, isActive);
             return ServiceResult.Ok(isActive ? "User berhasil diaktifkan." : "User berhasil dinonaktifkan.");
+        }
+
+        public ServiceResult DeleteUser(int userId)
+        {
+            if (userId <= 0)
+            {
+                return ServiceResult.Fail("Pilih user yang ingin dihapus.");
+            }
+
+            if (_repository.HasRelations(userId))
+            {
+                _repository.Deactivate(userId);
+                return ServiceResult.Ok("Data tidak bisa dihapus karena sudah dipakai. Data akan dinonaktifkan.");
+            }
+
+            try
+            {
+                _repository.Delete(userId);
+                return ServiceResult.Ok("User berhasil dihapus.");
+            }
+            catch (MySqlException)
+            {
+                _repository.Deactivate(userId);
+                return ServiceResult.Ok("Data tidak bisa dihapus karena sudah dipakai. Data akan dinonaktifkan.");
+            }
         }
 
         internal static string HashPassword(string password)

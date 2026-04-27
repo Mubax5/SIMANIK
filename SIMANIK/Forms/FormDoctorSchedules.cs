@@ -10,7 +10,8 @@ namespace SIMANIK.Forms
     {
         private readonly ScheduleService _scheduleService = new ScheduleService();
         private readonly DoctorService _doctorService = new DoctorService();
-        private int _selectedScheduleId;
+        private int? selectedId = null;
+        private bool isEditMode = false;
         private ComboBox cmbFilterDoctor;
         private CheckBox chkFilterDate;
         private DateTimePicker dtpFilterDate;
@@ -21,11 +22,14 @@ namespace SIMANIK.Forms
         private DateTimePicker dtpEndTime;
         private NumericUpDown numQuota;
         private CheckBox chkActive;
+        private Button btnAdd;
+        private Button btnUpdate;
+        private Button btnDelete;
 
         public FormDoctorSchedules() : base("Master Jadwal Dokter")
         {
             BuildUi();
-            Load += delegate { if (EnsureAdmin()) { LoadDoctorOptions(); LoadData(); } };
+            Load += delegate { if (EnsureAdmin()) { LoadDoctorOptions(); LoadData(); ClearForm(); } };
         }
 
         private void BuildUi()
@@ -39,8 +43,8 @@ namespace SIMANIK.Forms
 
             Button btnSearch = CreateButton("Cari", true);
             Button btnReset = CreateButton("Reset", false);
-            btnSearch.Click += delegate { LoadData(); };
-            btnReset.Click += delegate { cmbFilterDoctor.SelectedIndex = 0; chkFilterDate.Checked = false; dtpFilterDate.Value = DateTime.Today; cmbStatusFilter.SelectedIndex = 0; LoadData(); };
+            btnSearch.Click += delegate { LoadData(); ClearForm(); };
+            btnReset.Click += delegate { cmbFilterDoctor.SelectedIndex = 0; chkFilterDate.Checked = false; dtpFilterDate.Value = DateTime.Today; cmbStatusFilter.SelectedIndex = 0; LoadData(); ClearForm(); };
 
             FilterPanel.Controls.Add(CreateField("Dokter", cmbFilterDoctor, 230));
             FilterPanel.Controls.Add(CreateField("Tanggal", dtpFilterDate, 140));
@@ -69,21 +73,25 @@ namespace SIMANIK.Forms
             EditorPanel.Controls.Add(CreateField("Kuota", numQuota, 110));
             EditorPanel.Controls.Add(CreateField("Status", chkActive, 150));
 
-            Button btnAdd = CreateButton("Tambah", true);
-            Button btnUpdate = CreateButton("Ubah", true);
-            Button btnDeactivate = CreateButton("Nonaktifkan", false);
+            Button btnNew = CreateButton("Baru/Reset", false);
+            btnAdd = CreateButton("Tambah", true);
+            btnUpdate = CreateButton("Ubah", true);
+            btnDelete = CreateButton("Hapus", false);
             Button btnRefresh = CreateButton("Refresh", false);
-            btnAdd.Click += delegate { Save(0); };
-            btnUpdate.Click += delegate { Save(_selectedScheduleId); };
-            btnDeactivate.Click += delegate { SetActive(false); };
-            btnRefresh.Click += delegate { ClearEditor(); LoadDoctorOptions(); LoadData(); };
+            btnNew.Click += delegate { LoadDoctorOptions(); ClearForm(); };
+            btnAdd.Click += delegate { AddData(); };
+            btnUpdate.Click += delegate { UpdateData(); };
+            btnDelete.Click += delegate { DeleteData(); };
+            btnRefresh.Click += delegate { LoadDoctorOptions(); LoadData(); ClearForm(); };
 
             ButtonPanel.Controls.Add(btnRefresh);
-            ButtonPanel.Controls.Add(btnDeactivate);
+            ButtonPanel.Controls.Add(btnDelete);
             ButtonPanel.Controls.Add(btnUpdate);
             ButtonPanel.Controls.Add(btnAdd);
+            ButtonPanel.Controls.Add(btnNew);
 
             Grid.SelectionChanged += Grid_SelectionChanged;
+            UpdateActionButtons();
         }
 
         private void LoadDoctorOptions()
@@ -93,20 +101,69 @@ namespace SIMANIK.Forms
             filterDoctors.Add(new LookupItem { Id = 0, Text = "Semua" });
             filterDoctors.AddRange(doctors);
 
-            cmbFilterDoctor.DataSource = filterDoctors;
             cmbFilterDoctor.DisplayMember = "Text";
             cmbFilterDoctor.ValueMember = "Id";
+            cmbFilterDoctor.DataSource = filterDoctors;
 
-            cmbDoctor.DataSource = doctors;
             cmbDoctor.DisplayMember = "Text";
             cmbDoctor.ValueMember = "Id";
+            cmbDoctor.DataSource = doctors;
         }
 
         private void LoadData()
         {
             int doctorId = cmbFilterDoctor.SelectedValue == null ? 0 : Convert.ToInt32(cmbFilterDoctor.SelectedValue);
             DateTime? date = chkFilterDate.Checked ? (DateTime?)dtpFilterDate.Value.Date : null;
+            Grid.SelectionChanged -= Grid_SelectionChanged;
             Grid.DataSource = _scheduleService.Search(doctorId, date, Convert.ToString(cmbStatusFilter.SelectedItem));
+            ClearGridSelection();
+            Grid.SelectionChanged += Grid_SelectionChanged;
+        }
+
+        private void AddData()
+        {
+            if (selectedId.HasValue || isEditMode)
+            {
+                MessageBox.Show(this, "Anda sedang memilih data dari tabel. Klik Baru/Reset terlebih dahulu untuk menambah data baru.", "Mode tambah", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            Save(0);
+        }
+
+        private void UpdateData()
+        {
+            if (!selectedId.HasValue)
+            {
+                MessageBox.Show(this, "Pilih data yang ingin diubah.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            Save(selectedId.Value);
+        }
+
+        private void DeleteData()
+        {
+            if (!selectedId.HasValue)
+            {
+                MessageBox.Show(this, "Pilih data yang ingin dihapus.", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            DialogResult confirm = MessageBox.Show(this, "Yakin ingin menghapus data ini?", "Konfirmasi", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (confirm != DialogResult.Yes)
+            {
+                return;
+            }
+
+            ServiceResult result = _scheduleService.DeleteSchedule(selectedId.Value);
+            ShowResult(result);
+
+            if (result.Success)
+            {
+                LoadData();
+                ClearForm();
+            }
         }
 
         private void Save(int scheduleId)
@@ -127,19 +184,8 @@ namespace SIMANIK.Forms
 
             if (result.Success)
             {
-                ClearEditor();
                 LoadData();
-            }
-        }
-
-        private void SetActive(bool isActive)
-        {
-            ServiceResult result = _scheduleService.SetActive(_selectedScheduleId, isActive);
-            ShowResult(result);
-
-            if (result.Success)
-            {
-                LoadData();
+                ClearForm();
             }
         }
 
@@ -151,18 +197,24 @@ namespace SIMANIK.Forms
                 return;
             }
 
-            _selectedScheduleId = item.ScheduleId;
+            selectedId = item.ScheduleId;
+            isEditMode = true;
             cmbDoctor.SelectedValue = item.DoctorId;
             dtpScheduleDate.Value = item.ScheduleDate;
             dtpStartTime.Value = DateTime.Today.Add(item.StartTime);
             dtpEndTime.Value = DateTime.Today.Add(item.EndTime);
             numQuota.Value = Math.Max(numQuota.Minimum, Math.Min(numQuota.Maximum, item.Quota));
             chkActive.Checked = item.IsActive;
+            UpdateActionButtons();
         }
 
-        private void ClearEditor()
+        private void ClearForm()
         {
-            _selectedScheduleId = 0;
+            Grid.SelectionChanged -= Grid_SelectionChanged;
+            ClearGridSelection();
+            Grid.SelectionChanged += Grid_SelectionChanged;
+            selectedId = null;
+            isEditMode = false;
             if (cmbDoctor.Items.Count > 0)
             {
                 cmbDoctor.SelectedIndex = 0;
@@ -172,6 +224,15 @@ namespace SIMANIK.Forms
             dtpEndTime.Value = DateTime.Today.AddHours(10);
             numQuota.Value = 10;
             chkActive.Checked = true;
+            UpdateActionButtons();
+            cmbDoctor.Focus();
+        }
+
+        private void UpdateActionButtons()
+        {
+            btnAdd.Enabled = !isEditMode && !selectedId.HasValue;
+            btnUpdate.Enabled = selectedId.HasValue;
+            btnDelete.Enabled = selectedId.HasValue;
         }
     }
 }
