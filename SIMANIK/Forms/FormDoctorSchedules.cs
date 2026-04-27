@@ -116,6 +116,7 @@ namespace SIMANIK.Forms
             DateTime? date = chkFilterDate.Checked ? (DateTime?)dtpFilterDate.Value.Date : null;
             Grid.SelectionChanged -= Grid_SelectionChanged;
             Grid.DataSource = _scheduleService.Search(doctorId, date, Convert.ToString(cmbStatusFilter.SelectedItem));
+            SIMANIK.Helpers.UiTheme.ResizeDataGridViewColumns(Grid);
             ClearGridSelection();
             Grid.SelectionChanged += Grid_SelectionChanged;
         }

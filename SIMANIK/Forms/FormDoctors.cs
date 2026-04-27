@@ -82,6 +82,7 @@ namespace SIMANIK.Forms
         {
             Grid.SelectionChanged -= Grid_SelectionChanged;
             Grid.DataSource = _service.Search(txtSearch.Text, Convert.ToString(cmbStatusFilter.SelectedItem));
+            SIMANIK.Helpers.UiTheme.ResizeDataGridViewColumns(Grid);
             ClearGridSelection();
             Grid.SelectionChanged += Grid_SelectionChanged;
         }

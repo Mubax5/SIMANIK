@@ -122,20 +122,17 @@ namespace SIMANIK.Helpers
 
         public static void StyleDataGridView(DataGridView grid)
         {
+            if (grid == null)
+            {
+                return;
+            }
+
             grid.BackgroundColor = Color.White;
             grid.BorderStyle = BorderStyle.None;
             grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
             grid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
             grid.EnableHeadersVisualStyles = false;
             grid.GridColor = Border;
-            grid.RowHeadersVisible = false;
-            grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            grid.ScrollBars = ScrollBars.Both;
-            grid.MultiSelect = false;
-            grid.AllowUserToAddRows = false;
-            grid.AllowUserToDeleteRows = false;
-            grid.ReadOnly = true;
-            grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             grid.ColumnHeadersDefaultCellStyle.BackColor = Primary;
             grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
             grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold);
@@ -144,6 +141,51 @@ namespace SIMANIK.Helpers
             grid.DefaultCellStyle.SelectionBackColor = Accent;
             grid.DefaultCellStyle.SelectionForeColor = TextPrimary;
             grid.AlternatingRowsDefaultCellStyle.BackColor = Background;
+
+            ApplyDataGridViewScrollableStyle(grid);
+        }
+
+        public static void ApplyDataGridViewScrollableStyle(DataGridView grid)
+        {
+            if (grid == null)
+            {
+                return;
+            }
+
+            grid.AutoGenerateColumns = true;
+            grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            grid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            grid.ScrollBars = ScrollBars.Both;
+            grid.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+            grid.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.False;
+            grid.AllowUserToResizeColumns = true;
+            grid.AllowUserToResizeRows = false;
+            grid.ReadOnly = true;
+            grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            grid.MultiSelect = false;
+            grid.AllowUserToAddRows = false;
+            grid.AllowUserToDeleteRows = false;
+            grid.RowHeadersVisible = false;
+
+            grid.DataBindingComplete -= Grid_DataBindingComplete;
+            grid.DataBindingComplete += Grid_DataBindingComplete;
+            ResizeDataGridViewColumns(grid);
+        }
+
+        public static void ResizeDataGridViewColumns(DataGridView grid)
+        {
+            if (grid == null || grid.Columns.Count == 0)
+            {
+                return;
+            }
+
+            grid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+            grid.AutoResizeRows(DataGridViewAutoSizeRowsMode.AllCells);
+        }
+
+        private static void Grid_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            ResizeDataGridViewColumns(sender as DataGridView);
         }
 
         public static void StyleChart(Chart chart)

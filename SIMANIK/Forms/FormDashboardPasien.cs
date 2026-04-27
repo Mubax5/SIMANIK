@@ -80,6 +80,8 @@ namespace SIMANIK.Forms
             btnLogout.Width = 92;
             btnLogout.Height = 40;
             btnLogout.Margin = new Padding(8, 0, 0, 0);
+            btnReservasi.Click -= ShowPendingFeature;
+            btnReservasi.Click += delegate { OpenOperationalForm(new FormReservations()); };
             menuPanel.Controls.Add(btnLogout);
             menuPanel.Controls.Add(btnProfil);
             menuPanel.Controls.Add(refreshButton);
@@ -382,6 +384,16 @@ namespace SIMANIK.Forms
         private void ShowPendingFeature(object sender, EventArgs e)
         {
             MessageBox.Show(this, "Fitur akan dibuat di tahap berikutnya", ((Button)sender).Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void OpenOperationalForm(Form form)
+        {
+            using (form)
+            {
+                form.ShowDialog(this);
+            }
+
+            RefreshDashboard();
         }
 
         private void Logout(object sender, EventArgs e)

@@ -90,11 +90,17 @@ namespace SIMANIK.Forms
             btnJadwal.Click -= ShowPendingFeature;
             btnPenyakit.Click -= ShowPendingFeature;
             btnObat.Click -= ShowPendingFeature;
+            btnReservasi.Click -= ShowPendingFeature;
+            btnCheckIn.Click -= ShowPendingFeature;
+            btnAntrian.Click -= ShowPendingFeature;
             btnAkun.Click += delegate { OpenMasterForm(new FormUsers()); };
             btnDokter.Click += delegate { OpenMasterForm(new FormDoctors()); };
             btnJadwal.Click += delegate { OpenMasterForm(new FormDoctorSchedules()); };
             btnPenyakit.Click += delegate { OpenMasterForm(new FormDiseases()); };
             btnObat.Click += delegate { OpenMasterForm(new FormMedicines()); };
+            btnReservasi.Click += delegate { OpenMasterForm(new FormReservationAdmin()); };
+            btnCheckIn.Click += delegate { OpenMasterForm(new FormCheckIn()); };
+            btnAntrian.Click += delegate { OpenMasterForm(new FormQueues()); };
             menuPanel.Controls.Add(btnLogout);
             menuPanel.Controls.Add(btnAkun);
             menuPanel.Controls.Add(refreshButton);

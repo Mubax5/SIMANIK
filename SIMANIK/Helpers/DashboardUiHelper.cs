@@ -256,6 +256,7 @@ namespace SIMANIK.Helpers
             };
 
             UiTheme.StyleDataGridView(grid);
+            UiTheme.ResizeDataGridViewColumns(grid);
             return grid;
         }
 
@@ -264,6 +265,7 @@ namespace SIMANIK.Helpers
             grid.DataSource = null;
             grid.DataSource = dataSource;
             UiTheme.StyleDataGridView(grid);
+            UiTheme.ResizeDataGridViewColumns(grid);
         }
 
         public static Chart CreateChart(string title, List<ChartDataPoint> points, SeriesChartType chartType)

@@ -57,6 +57,9 @@
     <Compile Include="Forms\MasterDataFormBase.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\OperationalFormBase.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\FormDashboardAdmin.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -96,6 +99,18 @@
     <Compile Include="Forms\FormMedicines.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\FormReservations.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormReservationAdmin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormCheckIn.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormQueues.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\FormRegisterPasien.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -105,12 +120,14 @@
     <Compile Include="Helpers\DatabaseHelper.cs" />
     <Compile Include="Helpers\ConfigHelper.cs" />
     <Compile Include="Helpers\DashboardUiHelper.cs" />
+    <Compile Include="Helpers\QueueHelper.cs" />
     <Compile Include="Helpers\SessionHelper.cs" />
     <Compile Include="Helpers\UiTheme.cs" />
     <Compile Include="Helpers\ValidationHelper.cs" />
     <Compile Include="Models\Dokter.cs" />
     <Compile Include="Models\DashboardModels.cs" />
     <Compile Include="Models\MasterDataModels.cs" />
+    <Compile Include="Models\ReservationModels.cs" />
     <Compile Include="Models\Enums.cs" />
     <Compile Include="Models\Pasien.cs" />
     <Compile Include="Models\Pemeriksaan.cs" />
@@ -123,6 +140,8 @@
     <Compile Include="Repositories\ScheduleRepository.cs" />
     <Compile Include="Repositories\DiseaseRepository.cs" />
     <Compile Include="Repositories\MedicineRepository.cs" />
+    <Compile Include="Repositories\ReservationRepository.cs" />
+    <Compile Include="Repositories\VisitRepository.cs" />
     <Compile Include="Repositories\DashboardRepository.cs" />
     <Compile Include="Repositories\UserRepository.cs" />
     <Compile Include="Services\AuthService.cs" />
@@ -132,6 +151,8 @@
     <Compile Include="Services\ScheduleService.cs" />
     <Compile Include="Services\DiseaseService.cs" />
     <Compile Include="Services\MedicineService.cs" />
+    <Compile Include="Services\ReservationService.cs" />
+    <Compile Include="Services\VisitService.cs" />
     <Compile Include="Services\PasienService.cs" />
     <Compile Include="Services\ServiceResult.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
