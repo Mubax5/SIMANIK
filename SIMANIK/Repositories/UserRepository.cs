@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 using SIMANIK.Helpers;
 using SIMANIK.Models;
@@ -7,6 +8,47 @@ namespace SIMANIK.Repositories
 {
     public class UserRepository
     {
+        public List<UserListItem> Search(string keyword, string role, string status)
+        {
+            List<UserListItem> items = new List<UserListItem>();
+
+            using (MySqlConnection connection = DatabaseHelper.OpenConnection())
+            using (MySqlCommand command = connection.CreateCommand())
+            {
+                command.CommandText = @"
+                    SELECT UserId, Username, Role, IsActive, CreatedAt
+                    FROM users
+                    WHERE (@keyword = '' OR Username LIKE @keywordLike)
+                      AND (@role = 'Semua' OR Role = @role)
+                      AND (@status = 'Semua'
+                           OR (@status = 'Aktif' AND IsActive = 1)
+                           OR (@status = 'Nonaktif' AND IsActive = 0))
+                    ORDER BY CreatedAt DESC, Username;";
+
+                command.Parameters.AddWithValue("@keyword", Normalize(keyword));
+                command.Parameters.AddWithValue("@keywordLike", "%" + Normalize(keyword) + "%");
+                command.Parameters.AddWithValue("@role", string.IsNullOrWhiteSpace(role) ? "Semua" : role.Trim());
+                command.Parameters.AddWithValue("@status", string.IsNullOrWhiteSpace(status) ? "Semua" : status.Trim());
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        items.Add(new UserListItem
+                        {
+                            UserId = Convert.ToInt32(reader["UserId"]),
+                            Username = Convert.ToString(reader["Username"]),
+                            Role = Convert.ToString(reader["Role"]),
+                            Status = ParseBoolean(reader["IsActive"]) ? "Aktif" : "Nonaktif",
+                            CreatedAt = reader["CreatedAt"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(reader["CreatedAt"])
+                        });
+                    }
+                }
+            }
+
+            return items;
+        }
+
         public User FindByUsernameAndPassword(string username, string password)
         {
             using (MySqlConnection connection = DatabaseHelper.OpenConnection())
@@ -42,6 +84,23 @@ namespace SIMANIK.Repositories
             using (MySqlConnection connection = DatabaseHelper.OpenConnection())
             {
                 return IsUsernameExists(username, connection, null);
+            }
+        }
+
+        public bool IsUsernameExists(string username, int excludedUserId)
+        {
+            using (MySqlConnection connection = DatabaseHelper.OpenConnection())
+            using (MySqlCommand command = connection.CreateCommand())
+            {
+                command.CommandText = @"
+                    SELECT COUNT(1)
+                    FROM users
+                    WHERE Username = @username
+                      AND UserId <> @excludedUserId;";
+
+                command.Parameters.AddWithValue("@username", username);
+                command.Parameters.AddWithValue("@excludedUserId", excludedUserId);
+                return Convert.ToInt32(command.ExecuteScalar()) > 0;
             }
         }
 
@@ -87,6 +146,99 @@ namespace SIMANIK.Repositories
                 command.CommandText = "SELECT LAST_INSERT_ID();";
                 return Convert.ToInt32(command.ExecuteScalar());
             }
+        }
+
+        public int Insert(User user)
+        {
+            using (MySqlConnection connection = DatabaseHelper.OpenConnection())
+            {
+                return Insert(user, connection, null);
+            }
+        }
+
+        public void Update(User user, bool updatePassword)
+        {
+            using (MySqlConnection connection = DatabaseHelper.OpenConnection())
+            using (MySqlCommand command = connection.CreateCommand())
+            {
+                command.CommandText = updatePassword
+                    ? @"
+                        UPDATE users
+                        SET Username = @username,
+                            Password = @password,
+                            Role = @role,
+                            IsActive = @isActive
+                        WHERE UserId = @userId;"
+                    : @"
+                        UPDATE users
+                        SET Username = @username,
+                            Role = @role,
+                            IsActive = @isActive
+                        WHERE UserId = @userId;";
+
+                command.Parameters.AddWithValue("@username", user.Username);
+                command.Parameters.AddWithValue("@role", user.Role.ToString());
+                command.Parameters.AddWithValue("@isActive", user.IsActive);
+                command.Parameters.AddWithValue("@userId", user.Id);
+
+                if (updatePassword)
+                {
+                    command.Parameters.AddWithValue("@password", user.PasswordHash);
+                }
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void SetActive(int userId, bool isActive)
+        {
+            using (MySqlConnection connection = DatabaseHelper.OpenConnection())
+            using (MySqlCommand command = connection.CreateCommand())
+            {
+                command.CommandText = "UPDATE users SET IsActive = @isActive WHERE UserId = @userId;";
+                command.Parameters.AddWithValue("@isActive", isActive);
+                command.Parameters.AddWithValue("@userId", userId);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public List<LookupItem> GetDoctorUserOptions(int selectedUserId)
+        {
+            List<LookupItem> items = new List<LookupItem>();
+
+            using (MySqlConnection connection = DatabaseHelper.OpenConnection())
+            using (MySqlCommand command = connection.CreateCommand())
+            {
+                command.CommandText = @"
+                    SELECT u.UserId, u.Username
+                    FROM users u
+                    LEFT JOIN doctors d ON d.UserId = u.UserId
+                    WHERE u.Role = 'Dokter'
+                      AND u.IsActive = 1
+                      AND (d.DoctorId IS NULL OR u.UserId = @selectedUserId)
+                    ORDER BY u.Username;";
+
+                command.Parameters.AddWithValue("@selectedUserId", selectedUserId);
+
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        items.Add(new LookupItem
+                        {
+                            Id = Convert.ToInt32(reader["UserId"]),
+                            Text = Convert.ToString(reader["Username"])
+                        });
+                    }
+                }
+            }
+
+            return items;
+        }
+
+        private static string Normalize(string value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
         }
 
         private static User MapUser(MySqlDataReader reader)

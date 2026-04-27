@@ -54,6 +54,9 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\MasterDataFormBase.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\FormDashboardAdmin.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -78,6 +81,21 @@
     <Compile Include="Forms\FormLogin.Designer.cs">
       <DependentUpon>FormLogin.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\FormUsers.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormDoctors.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormDoctorSchedules.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormDiseases.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormMedicines.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\FormRegisterPasien.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -92,6 +110,7 @@
     <Compile Include="Helpers\ValidationHelper.cs" />
     <Compile Include="Models\Dokter.cs" />
     <Compile Include="Models\DashboardModels.cs" />
+    <Compile Include="Models\MasterDataModels.cs" />
     <Compile Include="Models\Enums.cs" />
     <Compile Include="Models\Pasien.cs" />
     <Compile Include="Models\Pemeriksaan.cs" />
@@ -100,10 +119,19 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\PasienRepository.cs" />
+    <Compile Include="Repositories\DoctorRepository.cs" />
+    <Compile Include="Repositories\ScheduleRepository.cs" />
+    <Compile Include="Repositories\DiseaseRepository.cs" />
+    <Compile Include="Repositories\MedicineRepository.cs" />
     <Compile Include="Repositories\DashboardRepository.cs" />
     <Compile Include="Repositories\UserRepository.cs" />
     <Compile Include="Services\AuthService.cs" />
     <Compile Include="Services\DashboardService.cs" />
+    <Compile Include="Services\UserService.cs" />
+    <Compile Include="Services\DoctorService.cs" />
+    <Compile Include="Services\ScheduleService.cs" />
+    <Compile Include="Services\DiseaseService.cs" />
+    <Compile Include="Services\MedicineService.cs" />
     <Compile Include="Services\PasienService.cs" />
     <Compile Include="Services\ServiceResult.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

@@ -85,6 +85,16 @@ namespace SIMANIK.Forms
             btnLogout.Width = 92;
             btnLogout.Height = 40;
             btnLogout.Margin = new Padding(8, 0, 0, 0);
+            btnAkun.Click -= ShowPendingFeature;
+            btnDokter.Click -= ShowPendingFeature;
+            btnJadwal.Click -= ShowPendingFeature;
+            btnPenyakit.Click -= ShowPendingFeature;
+            btnObat.Click -= ShowPendingFeature;
+            btnAkun.Click += delegate { OpenMasterForm(new FormUsers()); };
+            btnDokter.Click += delegate { OpenMasterForm(new FormDoctors()); };
+            btnJadwal.Click += delegate { OpenMasterForm(new FormDoctorSchedules()); };
+            btnPenyakit.Click += delegate { OpenMasterForm(new FormDiseases()); };
+            btnObat.Click += delegate { OpenMasterForm(new FormMedicines()); };
             menuPanel.Controls.Add(btnLogout);
             menuPanel.Controls.Add(btnAkun);
             menuPanel.Controls.Add(refreshButton);
@@ -401,6 +411,16 @@ namespace SIMANIK.Forms
         private void ShowPendingFeature(object sender, EventArgs e)
         {
             MessageBox.Show(this, "Fitur akan dibuat di tahap berikutnya", ((Button)sender).Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void OpenMasterForm(Form form)
+        {
+            using (form)
+            {
+                form.ShowDialog(this);
+            }
+
+            RefreshDashboard();
         }
 
         private void Logout(object sender, EventArgs e)
