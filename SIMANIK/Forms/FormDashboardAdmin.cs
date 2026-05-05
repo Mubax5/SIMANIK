@@ -104,7 +104,7 @@ namespace SIMANIK.Forms
             btnReservasi.Click += delegate { OpenMasterForm(new FormReservationAdmin()); };
             btnCheckIn.Click += delegate { OpenMasterForm(new FormCheckIn()); };
             btnAntrian.Click += delegate { OpenMasterForm(new FormQueues()); };
-            btnLaporan.Click += ShowPendingFeature;
+            btnLaporan.Click += delegate { OpenMasterForm(new FormReports()); };
             btnRiwayat = new Button
             {
                 Text = "Riwayat",

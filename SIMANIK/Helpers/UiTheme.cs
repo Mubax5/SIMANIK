@@ -6,8 +6,8 @@ namespace SIMANIK.Helpers
 {
     public static class UiTheme
     {
-        public static readonly Color Primary = ColorTranslator.FromHtml("#002657");
-        public static readonly Color Secondary = ColorTranslator.FromHtml("#003EAA");
+        public static readonly Color Primary = ColorTranslator.FromHtml("#004BCD");
+        public static readonly Color Secondary = ColorTranslator.FromHtml("#79AAFF");
         public static readonly Color Accent = ColorTranslator.FromHtml("#D6F1FA");
         public static readonly Color Background = ColorTranslator.FromHtml("#F4FBFE");
         public static readonly Color Panel = ColorTranslator.FromHtml("#EAF7FC");
