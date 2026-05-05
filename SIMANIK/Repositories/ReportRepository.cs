@@ -14,21 +14,26 @@ namespace SIMANIK.Repositories
         {
             return Query(@"
                 SELECT
-                    s.ScheduleDate AS ItemDate,
-                    DATE_FORMAT(s.ScheduleDate, '%d/%m/%Y') AS Label,
+                    daily.ItemDate,
+                    DATE_FORMAT(daily.ItemDate, '%d/%m/%Y') AS Label,
                     '' AS DoctorName,
                     '' AS PatientName,
                     '' AS DiseaseName,
                     '' AS MedicineName,
-                    COUNT(1) AS Total,
+                    daily.Total,
                     0 AS Stock,
                     '' AS Unit,
                     'Reservasi berdasarkan tanggal jadwal' AS ExtraInfo
-                FROM reservations r
-                INNER JOIN doctor_schedules s ON s.ScheduleId = r.ScheduleId
-                WHERE s.ScheduleDate BETWEEN @startDate AND @endDate
-                GROUP BY s.ScheduleDate
-                ORDER BY s.ScheduleDate;", delegate(MySqlParameterCollection p)
+                FROM (
+                    SELECT
+                        s.ScheduleDate AS ItemDate,
+                        COUNT(1) AS Total
+                    FROM reservations r
+                    INNER JOIN doctor_schedules s ON s.ScheduleId = r.ScheduleId
+                    WHERE s.ScheduleDate BETWEEN @startDate AND @endDate
+                    GROUP BY s.ScheduleDate
+                ) daily
+                ORDER BY daily.ItemDate;", delegate(MySqlParameterCollection p)
             {
                 AddDateParameters(p, start, end);
             });
@@ -64,21 +69,26 @@ namespace SIMANIK.Repositories
         {
             return Query(@"
                 SELECT
-                    DATE(v.CheckInTime) AS ItemDate,
-                    DATE_FORMAT(DATE(v.CheckInTime), '%d/%m/%Y') AS Label,
+                    daily.ItemDate,
+                    DATE_FORMAT(daily.ItemDate, '%d/%m/%Y') AS Label,
                     '' AS DoctorName,
                     '' AS PatientName,
                     '' AS DiseaseName,
                     '' AS MedicineName,
-                    COUNT(1) AS Total,
+                    daily.Total,
                     0 AS Stock,
                     '' AS Unit,
                     'Kunjungan status Selesai' AS ExtraInfo
-                FROM visits v
-                WHERE v.VisitStatus = 'Selesai'
-                  AND DATE(v.CheckInTime) BETWEEN @startDate AND @endDate
-                GROUP BY DATE(v.CheckInTime)
-                ORDER BY DATE(v.CheckInTime);", delegate(MySqlParameterCollection p)
+                FROM (
+                    SELECT
+                        DATE(v.CheckInTime) AS ItemDate,
+                        COUNT(1) AS Total
+                    FROM visits v
+                    WHERE v.VisitStatus = 'Selesai'
+                      AND DATE(v.CheckInTime) BETWEEN @startDate AND @endDate
+                    GROUP BY DATE(v.CheckInTime)
+                ) daily
+                ORDER BY daily.ItemDate;", delegate(MySqlParameterCollection p)
             {
                 AddDateParameters(p, start, end);
             });
@@ -190,21 +200,27 @@ namespace SIMANIK.Repositories
         {
             return Query(@"
                 SELECT
-                    DATE(e.ExaminationDate) AS ItemDate,
-                    DATE_FORMAT(DATE(e.ExaminationDate), '%d/%m/%Y') AS Label,
-                    d.FullName AS DoctorName,
+                    daily.ItemDate,
+                    DATE_FORMAT(daily.ItemDate, '%d/%m/%Y') AS Label,
+                    daily.DoctorName,
                     '' AS PatientName,
                     '' AS DiseaseName,
                     '' AS MedicineName,
-                    COUNT(e.ExaminationId) AS Total,
+                    daily.Total,
                     0 AS Stock,
                     '' AS Unit,
                     'Pemeriksaan selesai' AS ExtraInfo
-                FROM examinations e
-                INNER JOIN doctors d ON d.DoctorId = e.DoctorId
-                WHERE DATE(e.ExaminationDate) BETWEEN @startDate AND @endDate
-                GROUP BY DATE(e.ExaminationDate), d.DoctorId, d.FullName
-                ORDER BY DATE(e.ExaminationDate), d.FullName;", delegate(MySqlParameterCollection p)
+                FROM (
+                    SELECT
+                        DATE(e.ExaminationDate) AS ItemDate,
+                        d.FullName AS DoctorName,
+                        COUNT(e.ExaminationId) AS Total
+                    FROM examinations e
+                    INNER JOIN doctors d ON d.DoctorId = e.DoctorId
+                    WHERE DATE(e.ExaminationDate) BETWEEN @startDate AND @endDate
+                    GROUP BY DATE(e.ExaminationDate), d.DoctorId, d.FullName
+                ) daily
+                ORDER BY daily.ItemDate, daily.DoctorName;", delegate(MySqlParameterCollection p)
             {
                 AddDateParameters(p, start, end);
             });
