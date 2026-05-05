@@ -25,6 +25,8 @@ namespace SIMANIK.Forms
         private Button btnSearchAdmin;
         private Button btnResetSearchAdmin;
         private DataGridView dgvAdminSearchResults;
+        private Button btnRiwayat;
+        private Button btnMedicalRecord;
 
         public FormDashboardAdmin()
         {
@@ -93,6 +95,7 @@ namespace SIMANIK.Forms
             btnReservasi.Click -= ShowPendingFeature;
             btnCheckIn.Click -= ShowPendingFeature;
             btnAntrian.Click -= ShowPendingFeature;
+            btnLaporan.Click -= ShowPendingFeature;
             btnAkun.Click += delegate { OpenMasterForm(new FormUsers()); };
             btnDokter.Click += delegate { OpenMasterForm(new FormDoctors()); };
             btnJadwal.Click += delegate { OpenMasterForm(new FormDoctorSchedules()); };
@@ -101,6 +104,25 @@ namespace SIMANIK.Forms
             btnReservasi.Click += delegate { OpenMasterForm(new FormReservationAdmin()); };
             btnCheckIn.Click += delegate { OpenMasterForm(new FormCheckIn()); };
             btnAntrian.Click += delegate { OpenMasterForm(new FormQueues()); };
+            btnLaporan.Click += ShowPendingFeature;
+            btnRiwayat = new Button
+            {
+                Text = "Riwayat",
+                Width = 132,
+                Height = 44,
+                Margin = new Padding(0, 0, 12, 10)
+            };
+            UiTheme.StyleMenuButton(btnRiwayat);
+            btnRiwayat.Click += delegate { OpenMasterForm(new FormHistory()); };
+            btnMedicalRecord = new Button
+            {
+                Text = "Medical Record",
+                Width = 132,
+                Height = 44,
+                Margin = new Padding(0, 0, 12, 10)
+            };
+            UiTheme.StyleMenuButton(btnMedicalRecord);
+            btnMedicalRecord.Click += delegate { OpenMasterForm(new FormMedicalRecord()); };
             menuPanel.Controls.Add(btnLogout);
             menuPanel.Controls.Add(btnAkun);
             menuPanel.Controls.Add(refreshButton);
@@ -177,6 +199,8 @@ namespace SIMANIK.Forms
             ConfigureQuickMenuButton(btnReservasi);
             ConfigureQuickMenuButton(btnCheckIn);
             ConfigureQuickMenuButton(btnAntrian);
+            ConfigureQuickMenuButton(btnRiwayat);
+            ConfigureQuickMenuButton(btnMedicalRecord);
             ConfigureQuickMenuButton(btnLaporan);
 
             quickMenu.Controls.Add(btnDokter);
@@ -186,6 +210,8 @@ namespace SIMANIK.Forms
             quickMenu.Controls.Add(btnReservasi);
             quickMenu.Controls.Add(btnCheckIn);
             quickMenu.Controls.Add(btnAntrian);
+            quickMenu.Controls.Add(btnRiwayat);
+            quickMenu.Controls.Add(btnMedicalRecord);
             quickMenu.Controls.Add(btnLaporan);
 
             body.Controls.Add(quickMenu);

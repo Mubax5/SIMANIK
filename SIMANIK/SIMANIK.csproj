@@ -111,6 +111,15 @@
     <Compile Include="Forms\FormQueues.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\FormExaminations.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormHistory.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormMedicalRecord.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\FormRegisterPasien.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -126,6 +135,7 @@
     <Compile Include="Helpers\ValidationHelper.cs" />
     <Compile Include="Models\Dokter.cs" />
     <Compile Include="Models\DashboardModels.cs" />
+    <Compile Include="Models\ClinicalModels.cs" />
     <Compile Include="Models\MasterDataModels.cs" />
     <Compile Include="Models\ReservationModels.cs" />
     <Compile Include="Models\Enums.cs" />
@@ -143,6 +153,10 @@
     <Compile Include="Repositories\ReservationRepository.cs" />
     <Compile Include="Repositories\VisitRepository.cs" />
     <Compile Include="Repositories\DashboardRepository.cs" />
+    <Compile Include="Repositories\ExaminationRepository.cs" />
+    <Compile Include="Repositories\PrescriptionRepository.cs" />
+    <Compile Include="Repositories\MedicalRecordRepository.cs" />
+    <Compile Include="Repositories\HistoryRepository.cs" />
     <Compile Include="Repositories\UserRepository.cs" />
     <Compile Include="Services\AuthService.cs" />
     <Compile Include="Services\DashboardService.cs" />
@@ -153,6 +167,9 @@
     <Compile Include="Services\MedicineService.cs" />
     <Compile Include="Services\ReservationService.cs" />
     <Compile Include="Services\VisitService.cs" />
+    <Compile Include="Services\ExaminationService.cs" />
+    <Compile Include="Services\MedicalRecordService.cs" />
+    <Compile Include="Services\HistoryService.cs" />
     <Compile Include="Services\PasienService.cs" />
     <Compile Include="Services\ServiceResult.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

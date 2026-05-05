@@ -87,7 +87,11 @@ namespace SIMANIK.Forms
             btnLogout.Height = 40;
             btnLogout.Margin = new Padding(8, 0, 0, 0);
             btnAntrian.Click -= ShowPendingFeature;
+            btnPemeriksaan.Click -= ShowPendingFeature;
+            btnRiwayat.Click -= ShowPendingFeature;
             btnAntrian.Click += delegate { OpenOperationalForm(new FormQueues()); };
+            btnPemeriksaan.Click += delegate { OpenOperationalForm(new FormExaminations()); };
+            btnRiwayat.Click += delegate { OpenOperationalForm(new FormHistory()); };
             menuPanel.Controls.Add(btnLogout);
             menuPanel.Controls.Add(btnAkun);
             menuPanel.Controls.Add(refreshButton);
